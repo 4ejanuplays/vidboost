@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VidBoost</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0f14;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .box {
+      width: 100%;
+      max-width: 500px;
+      background: #151b23;
+      border-radius: 20px;
+      padding: 25px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 32px;
+    }
+
+    p {
+      color: #aeb7c4;
+    }
+
+    input {
+      width: 100%;
+      margin: 20px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: 0;
+      border-radius: 12px;
+      background: #25d366;
+      color: #07100a;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+    }
+
+    #status {
+      margin-top: 20px;
+      color: #25d366;
+      min-height: 24px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h1>VidBoost 🚀</h1>
+    <p>Upload your video and enhance it to 60 FPS.</p>
+
+    <input id="video" type="file" accept="video/*">
+
+    <button id="process">Generate Enhanced Video</button>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const video = document.getElementById("video");
+    const button = document.getElementById("process");
+    const status = document.getElementById("status");
+
+    button.addEventListener("click", async () => {
+      if (!video.files.length) {
+        status.textContent = "Please select a video first.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("video", video.files[0]);
+
+      button.disabled = true;
+      status.textContent = "Processing video... Please wait.";
+
+      try {
+        const response = await fetch("/process", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error("Processing failed");
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "vidboost-enhanced.mp4";
+        link.textContent = "Download Enhanced Video";
+        link.style.display = "block";
+        link.style.marginTop = "20px";
+        link.style.color = "#25d366";
+        link.style.fontWeight = "bold";
+
+        status.textContent = "✅ Video ready!";
+        status.appendChild(document.createElement("br"));
+        status.appendChild(link);
+
+      } catch (error) {
+        status.textContent = "❌ Processing failed. Please try again.";
+      }
+
+      button.disabled = false;
+    });
+  </script>
+</body>
+</html>
